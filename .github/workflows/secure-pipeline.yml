@@ -1,0 +1,28 @@
+name: Secure Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Snyk Security Scan
+        run: snyk test
+
+      - name: Run OWASP ZAP
+        run: |
+          zap.bat -cmd -quick-scan -url http://localhost:8080
+
+      - name: Run SonarQube Analysis
+        env:
+          SONAR_HOST_URL: http://localhost:9000
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner
