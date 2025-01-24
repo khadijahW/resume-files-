@@ -1,28 +1,51 @@
-name: Secure Pipeline
+name: SonarQube Analysis
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
-    runs-on: windows-latest
+  sonar:
+    name: Run SonarQube Analysis
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      # Check out the code
+      - name: Check out code
+        uses: actions/checkout@v2
 
-      - name: Run Snyk Security Scan
-        run: snyk test
+      # Cache SonarQube scanner dependencies
+      - name: Cache SonarQube scanner
+        uses: actions/cache@v2
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar-cache
 
-      - name: Run OWASP ZAP
+      # Set up Java (required by SonarQube)
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin' # Use 'zulu' or 'adopt' if preferred
+          java-version: '21' # SonarQube typically requires JDK 11 or 17
+
+      # Install and configure SonarQube Scanner
+      - name: Install SonarQube Scanner
         run: |
-          zap.bat -cmd -quick-scan -url http://localhost:8080
+          curl -sSLo sonarscanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+          unzip sonarscanner.zip -d /opt
+          echo "/opt/sonar-scanner-4.6.2.2472-linux/bin" >> $GITHUB_PATH
 
-      - name: Run SonarQube Analysis
+      # Run SonarQube Scanner
+      - name: Run SonarQube Scanner
         env:
-          SONAR_HOST_URL: http://localhost:9000
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Ensure this secret is set in your GitHub repo
         run: |
-          sonar-scanner
+          sonar-scanner \
+            -Dsonar.projectKey=GIthub \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=http://localhost:9000 
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
