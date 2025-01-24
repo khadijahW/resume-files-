@@ -1,25 +1,27 @@
-name: Build and Analyze
+name: Build
 
 on:
   push:
     branches:
       - main
 
+
 jobs:
   build:
-    name: Build and Analyze
-    runs-on: ubuntu-latest
-
+    name: Build and analyze
+    runs-on: windows-latest
+    
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Ensure full history for accurate analysis
-
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - uses: SonarSource/sonarqube-scan-action@v4
-        with:
-          sonar-project-key: khadijahW_resume-files-_91f887f1-fa21-4f0d-a513-6c21d0600de8
-          sonar-project-name: resume-files- 
-          sonar-project-version: ${{ github.sha }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # - uses: SonarSource/sonarqube-quality-gate-action@v1
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
