@@ -1,51 +1,27 @@
-name: SonarQube Analysis
+name: Build
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+
 
 jobs:
-  sonar:
-    name: Run SonarQube Analysis
-    runs-on: ubuntu-latest
-
+  build:
+    name: Build and analyze
+    runs-on: windows-latest
+    
     steps:
-      # Check out the code
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      # Cache SonarQube scanner dependencies
-      - name: Cache SonarQube scanner
-        uses: actions/cache@v2
+      - uses: actions/checkout@v4
         with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar-cache
-
-      # Set up Java (required by SonarQube)
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin' # Use 'zulu' or 'adopt' if preferred
-          java-version: '21' # SonarQube typically requires JDK 11 or 17
-
-      # Install and configure SonarQube Scanner
-      - name: Install SonarQube Scanner
-        run: |
-          curl -sSLo sonarscanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
-          unzip sonarscanner.zip -d /opt
-          echo "/opt/sonar-scanner-4.6.2.2472-linux/bin" >> $GITHUB_PATH
-
-      # Run SonarQube Scanner
-      - name: Run SonarQube Scanner
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: SonarSource/sonarqube-scan-action@v4
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Ensure this secret is set in your GitHub repo
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=khadijahW_resume-files-_91f887f1-fa21-4f0d-a513-6c21d0600de8
-            -Dsonar.sources=. \
-            -Dsonar.host.url=http://localhost:9000 
-            -Dsonar.login=sqp_a6f1a6499abc940043794d28edb6c4847eff9834
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # - uses: SonarSource/sonarqube-quality-gate-action@v1
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
