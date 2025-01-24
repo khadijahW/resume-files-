@@ -45,7 +45,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Ensure this secret is set in your GitHub repo
         run: |
           sonar-scanner \
-            -Dsonar.projectKey=GIthub \
+            -Dsonar.projectKey=khadijahW_resume-files-_91f887f1-fa21-4f0d-a513-6c21d0600de8
             -Dsonar.sources=. \
             -Dsonar.host.url=http://localhost:9000 
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
