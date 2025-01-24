@@ -1,27 +1,50 @@
-name: Build
+name: Build and Analyze
 
 on:
   push:
     branches:
       - main
 
-
 jobs:
   build:
-    name: Build and analyze
-    runs-on: windows-latest
-    
+    name: Build and Analyze
+    runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: SonarSource/sonarqube-scan-action@v4
+          fetch-depth: 0  # Ensure full history is available for analysis
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache SonarQube Scanner
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: sonar-scanner-cli-6.2.1.4610-Linux-X64
+          restore-keys: |
+            sonar-scanner-cli-
+
+      - name: Install SonarQube Scanner CLI
+        run: |
+          mkdir -p /home/runner/work/_temp/sonarscanner
+          cd /home/runner/work/_temp/sonarscanner
+          SCANNER_FILE_NAME=sonar-scanner-cli-6.2.1.4610-linux-x64.zip
+          SCANNER_URI=https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux-x64.zip
+          wget --no-verbose --user-agent=sonarqube-scan-action $SCANNER_URI
+          unzip -q -o $SCANNER_FILE_NAME
+          SCANNER_UNZIP_FOLDER=sonar-scanner-6.2.1.4610-linux-x64
+          SCANNER_LOCAL_FOLDER=/home/runner/work/_temp/sonar-scanner-cli-6.2.1.4610-Linux-X64
+          mv -f $SCANNER_UNZIP_FOLDER $SCANNER_LOCAL_FOLDER
+          echo "${SCANNER_LOCAL_FOLDER}/bin" >> $GITHUB_PATH
+
+      - name: Run SonarQube Analysis
+        run: |
+          sonar-scanner
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      # If you wish to fail your job when the Quality Gate is red, uncomment the
-      # following lines. This would typically be used to fail a deployment.
-      # - uses: SonarSource/sonarqube-quality-gate-action@v1
-      #   timeout-minutes: 5
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
