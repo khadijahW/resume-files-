@@ -18,4 +18,4 @@ jobs:
       - uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL}}
+          SONAR_HOST_URL: https://f86b-2600-8801-2098-f600-4d88-8fed-838c-4423.ngrok-free.app
