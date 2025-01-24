@@ -13,38 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Ensure full history is available for analysis
+          fetch-depth: 0  # Ensure full history for accurate analysis
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
+      - uses: SonarSource/sonarqube-scan-action@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Cache SonarQube Scanner
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: sonar-scanner-cli-6.2.1.4610-Linux-X64
-          restore-keys: |
-            sonar-scanner-cli-
-
-      - name: Install SonarQube Scanner CLI
-        run: |
-          mkdir -p /home/runner/work/_temp/sonarscanner
-          cd /home/runner/work/_temp/sonarscanner
-          SCANNER_FILE_NAME=sonar-scanner-cli-6.2.1.4610-linux-x64.zip
-          SCANNER_URI=https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux-x64.zip
-          wget --no-verbose --user-agent=sonarqube-scan-action $SCANNER_URI
-          unzip -q -o $SCANNER_FILE_NAME
-          SCANNER_UNZIP_FOLDER=sonar-scanner-6.2.1.4610-linux-x64
-          SCANNER_LOCAL_FOLDER=/home/runner/work/_temp/sonar-scanner-cli-6.2.1.4610-Linux-X64
-          mv -f $SCANNER_UNZIP_FOLDER $SCANNER_LOCAL_FOLDER
-          echo "${SCANNER_LOCAL_FOLDER}/bin" >> $GITHUB_PATH
-
-      - name: Run SonarQube Analysis
-        run: |
-          sonar-scanner
+          projectKey: khadijahW_resume-files-_91f887f1-fa21-4f0d-a513-6c21d0600de8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_HOST_URL: https://your-sonarqube-server-url
