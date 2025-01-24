@@ -15,7 +15,7 @@ jobs:
         with:
           fetch-depth: 0  # Ensure full history for accurate analysis
 
-      - uses: SonarSource/sonarqube-scan-action@v2
+      - uses: SonarSource/sonarqube-scan-action@v4
         with:
           projectKey: khadijahW_resume-files-_91f887f1-fa21-4f0d-a513-6c21d0600de8
         env:
