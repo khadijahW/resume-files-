@@ -48,4 +48,4 @@ jobs:
             -Dsonar.projectKey=khadijahW_resume-files-_91f887f1-fa21-4f0d-a513-6c21d0600de8
             -Dsonar.sources=. \
             -Dsonar.host.url=http://localhost:9000 
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.login=sqp_a6f1a6499abc940043794d28edb6c4847eff9834
